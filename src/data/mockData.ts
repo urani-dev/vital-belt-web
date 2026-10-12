@@ -99,7 +99,7 @@ export const DEMO_MEMBERS: DemoMemberSeed[] = [
     mock: { vitals: { heartBeat: 88, fatigue: 64, stress: 61, overall: 65 }, scores: { bodyStatus: 63, mindStatus: 60, environmentRisk: 40 } },
   },
   {
-    id: "m03", no: "03", name: "田中 健二", lat: 35.6466, lng: 140.0378, areaId: "a3", lastKnownAreaId: "a3", frozenLocationAgeMs: null,
+    id: "m03", no: "03", name: "TANAKA", lat: 35.6466, lng: 140.0378, areaId: "a3", lastKnownAreaId: "a3", frozenLocationAgeMs: null,
     real: true,
   },
   {

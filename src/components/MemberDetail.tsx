@@ -212,7 +212,7 @@ function PulseBreath({ row, now }: { row: MemberRow; now: number }) {
 /** Hai khối drill-down mở/đóng độc lập — mở được cả hai cùng lúc. */
 type Drill = "bme" | "pulse";
 
-/** F8 — (C) Chi tiết thành viên + drill-down F9, F10. */
+/** F8 — Chi tiết thành viên + drill-down F9, F10. */
 export function MemberDetail({ row, areas, now }: { row: MemberRow; areas: Area[]; now: number }) {
   const [open, setOpen] = useState<Record<Drill, boolean>>({ bme: false, pulse: false });
   const { member } = row;

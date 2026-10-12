@@ -21,7 +21,7 @@ Cấu hình Firebase: copy `.env.example` → `.env.local` và điền giá tr�
 ## Dữ liệu (phase 1)
 
 - Web nghe realtime một document `liveChannels/5005` (`src/data/liveSource.ts`), chỉ đọc.
-- 10 người theo design (`src/data/mockData.ts`): 田中 健二 nhận nguyên dữ liệu kênh thật; 9 người còn lại gắn nhãn 「デモ」 (`src/data/demoRoster.ts`): giá trị kênh hợp lệ thì cộng độ lệch, giá trị "chưa đo được" (mạch/thở = 0, điểm = 255, displayScores = null) thì dùng số mock theo mockup. 田中 健二 vẫn hiện `—` cho giá trị chưa đo được.
+- 10 người theo design (`src/data/mockData.ts`): TANAKA nhận nguyên dữ liệu kênh thật; 9 người còn lại gắn nhãn 「デモ」 (`src/data/demoRoster.ts`): giá trị kênh hợp lệ thì cộng độ lệch, giá trị "chưa đo được" (mạch/thở = 0, điểm = 255, displayScores = null) thì dùng số mock theo mockup. TANAKA vẫn hiện `—` cho giá trị chưa đo được.
 - Vị trí: GPS trong packet UDP nếu hợp lệ, không thì lấy object `location` cùng hàng `meta`.
 - Khu vực, tên công việc, biểu đồ 24 giờ / 日次 / 週次 vẫn là dữ liệu giả (chưa có lịch sử, chưa có collection `members`).
 - Quá 5 giây không có `sequence` mới → 「更新停止」 (ngừng cập nhật).

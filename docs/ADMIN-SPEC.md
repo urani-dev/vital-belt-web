@@ -104,6 +104,9 @@ Luồng: 未対応 → 対応中 → 確認済. Có thể reset bằng nút 「�
 ## 4. Đặc tả từng tính năng
 
 ### F0. Animation khởi động (立ち上がり · khi mở app)
+
+> **Đã bỏ (2026-10-12, theo yêu cầu người dùng):** không hiển thị màn đen sau đăng nhập; vào thẳng dashboard. Mô tả dưới đây chỉ để tham chiếu design.
+
 1. Màn đen.
 2. 「VITAL BELT 文字が現れる」 *(chữ VITAL BELT hiện ra)*.
 3. 「VITAL BELT 文字が一定時間見えている」 *(chữ hiển thị trong một khoảng thời gian)*.
@@ -320,7 +323,7 @@ Mở bằng 「タップ後の詳細を表示」 *(bấm vào để hiện chi t
   - Nút 「ログイン」 *(đăng nhập)*.
   - Link 「パスワードをお忘れの方」 *(quên mật khẩu)*, gửi email reset qua Firebase.
 - **Lỗi:** 「メールアドレスまたはパスワードが正しくありません」 *(email hoặc mật khẩu không đúng)*. Dùng chung một câu cho cả hai trường hợp để không lộ email nào có tồn tại.
-- **Sau khi đăng nhập:** chạy animation F0 rồi vào dashboard. Chưa đăng nhập mà mở bất kỳ URL nào thì bị đẩy về trang login.
+- **Sau khi đăng nhập:** vào thẳng dashboard (F0 đã bỏ). Chưa đăng nhập mà mở bất kỳ URL nào thì bị đẩy về trang login.
 - **Đăng xuất:** menu tài khoản trên header F1 → 「ログアウト」 *(đăng xuất)*.
 - **Vai trò (đã chốt 2026-10-09): chỉ 1 vai trò `admin`** 「管理者」 *(quản trị)*, có toàn quyền: xem dashboard, ghi nhận xử lý (F7), sửa ngưỡng (F13).
 

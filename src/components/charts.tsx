@@ -12,11 +12,12 @@ export const CHART_COLOR = {
   pulse: "#d23c3c",
   breath: "#2f78c4",
   overall: "#2f4f7f",
-  axis: "#8a8782",
+  /** Nhãn trục: đậm hơn màu muted (#8a8782) để đọc rõ trên nền trắng (tương phản ~9:1). */
+  axis: "#282525",
   grid: "#ecebe7",
 } as const;
 
-const AXIS_LABEL = { color: CHART_COLOR.axis, fontSize: 10 };
+const AXIS_LABEL = { color: CHART_COLOR.axis, fontSize: 10, fontWeight: 500 };
 const SPLIT_LINE = { lineStyle: { color: CHART_COLOR.grid } };
 const TOOLTIP = {
   backgroundColor: "#ffffff",

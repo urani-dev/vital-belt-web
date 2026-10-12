@@ -73,16 +73,3 @@ body {
   padding: 0 4px;
   border-radius: 4px;
 }
-
-@keyframes vb-splash {
-  0% { opacity: 0; }
-  25% { opacity: 1; }
-  70% { opacity: 1; }
-  100% { opacity: 0; }
-}
-.vb-splash-text {
-  animation: vb-splash 2.6s ease-in-out forwards;
-}
-@media (prefers-reduced-motion: reduce) {
-  .vb-splash-text { animation: none; }
-}

@@ -137,12 +137,12 @@ describe("demo roster", () => {
     receivedAt: PUBLISHED_AT,
   });
 
-  it("10 members; 田中 健二 carries the real channel unchanged", () => {
+  it("10 members; TANAKA carries the real channel unchanged", () => {
     const c = parsed();
     const { members } = createDemoRoster()(feed(c), PUBLISHED_AT);
     expect(members).toHaveLength(10);
     const real = members.filter((m) => !m.isDemo);
-    expect(real.map((m) => m.name)).toEqual(["田中 健二"]);
+    expect(real.map((m) => m.name)).toEqual(["TANAKA"]);
     expect(real[0]!.vitals).toEqual(c.vitals);
     expect(real[0]!.scores).toEqual(c.scores);
     expect(real[0]!.location).toMatchObject({ lat: 37.785834, lng: -122.406417, source: "device", areaId: "a3" });

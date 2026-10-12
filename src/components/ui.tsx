@@ -66,22 +66,16 @@ interface PanelProps {
   title: ReactNode;
   subtitle?: ReactNode;
   action?: ReactNode;
-  marker?: string;
   className?: string;
   children: ReactNode;
 }
 
 /** Khung panel có nút thu gọn 「たためる」 (F11) khi truyền id. */
-export function Panel({ id, title, subtitle, action, marker, className = "", children }: PanelProps) {
+export function Panel({ id, title, subtitle, action, className = "", children }: PanelProps) {
   const collapsed = useUi((s) => (id ? Boolean(s.collapsed[id]) : false));
   const toggle = useUi((s) => s.togglePanel);
   const heading = (
     <span className="flex items-center gap-1.5 text-sm font-bold">
-      {marker && (
-        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#d6286f] text-[11px] font-bold text-white">
-          {marker}
-        </span>
-      )}
       {id && <span className="text-xs text-muted">{collapsed ? "▸" : "▾"}</span>}
       {title}
     </span>

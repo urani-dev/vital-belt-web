@@ -56,7 +56,6 @@ export function AreaBoard({ rows, areas }: { rows: MemberRow[]; areas: Area[] })
   return (
     <Panel
       id="areas"
-      marker="B"
       title="エリア別の人数"
       subtitle="現在どのエリアに？ GPS と登録エリアを照合"
       action={

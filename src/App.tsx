@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth } from "./store/auth";
-import { Splash } from "./components/Splash";
 import { LoginPage } from "./pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ThresholdSettingsPage } from "./pages/ThresholdSettingsPage";
@@ -14,7 +13,7 @@ function RequireAuth({ children }: { children: ReactNode }) {
   // Chờ Firebase khôi phục phiên đăng nhập trước khi quyết định chuyển về /login.
   if (!ready) return <p className="p-8 text-sm text-muted">読み込み中…</p>;
   if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
-  return <Splash>{children}</Splash>;
+  return <>{children}</>;
 }
 
 export function App() {

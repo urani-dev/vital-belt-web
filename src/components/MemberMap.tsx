@@ -159,7 +159,6 @@ export function MemberMap({ rows, operation, areas, now }: Props) {
   return (
     <Panel
       id="map"
-      marker="A"
       title="メンバーの位置"
       subtitle={operation.centerLabel}
       action={

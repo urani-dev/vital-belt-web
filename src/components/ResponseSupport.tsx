@@ -16,7 +16,7 @@ interface Props {
   now: number;
 }
 
-/** F7 — (D) 対応サポート. */
+/** F7 — 対応サポート. */
 export function ResponseSupport({ row, rows, areas, now }: Props) {
   const record = useResponses((s) => s.records[row.member.id]);
   const setStatus = useResponses((s) => s.setStatus);
@@ -35,7 +35,7 @@ export function ResponseSupport({ row, rows, areas, now }: Props) {
 
   return (
     <div id={SUPPORT_ANCHOR_ID} className="scroll-mt-4">
-      <Panel id="support" marker="D" title="対応サポート" action={<span className="rounded bg-subtle px-1.5 py-0.5 text-[10px] text-muted">推奨対応</span>}>
+      <Panel id="support" title="対応サポート" action={<span className="rounded bg-subtle px-1.5 py-0.5 text-[10px] text-muted">推奨対応</span>}>
         {row.category === "priority" ? <PriorityTag /> : <StatusBadge category={row.category} />}
         <SensorTag status={member.vitals.status} />
         <p className="mt-1.5 text-base font-bold">
