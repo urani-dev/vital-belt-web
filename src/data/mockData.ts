@@ -41,8 +41,12 @@ export interface DemoMemberSeed {
   areaId: string | null;
   lastKnownAreaId: string;
   real?: true;
-  /** Tuổi của vị trí GPS (vị trí đứng yên). null = theo vị trí hiện tại. */
-  frozenLocationAgeMs: number | null;
+  /**
+   * Người đã ngừng gửi dữ liệu (design: pin 8 「5 分前」): lúc mở trang, lần nhận cuối là chừng này ms trước.
+   * Số liệu, sóng và vị trí đóng băng từ lần dựng đầu; mốc nhận cuối không đổi nên tuổi tăng dần như thật.
+   * null = đang hoạt động, theo kênh thật.
+   */
+  inactiveAgeMs: number | null;
   vitals?: Partial<Record<ShiftableVital, number>>;
   /** Kịch bản demo: rủi ro nhiệt tối thiểu (thang 1–5). */
   heatStressAtLeast?: number;
@@ -82,7 +86,7 @@ export const MOCK_SCORES: Record<keyof DisplayScores, number> = {
 
 export const DEMO_MEMBERS: DemoMemberSeed[] = [
   {
-    id: "m01", no: "01", name: "佐藤 元気", lat: 35.6494, lng: 140.0322, areaId: "a1", lastKnownAreaId: "a1", frozenLocationAgeMs: null,
+    id: "m01", no: "01", name: "佐藤 元気", lat: 35.6494, lng: 140.0322, areaId: "a1", lastKnownAreaId: "a1", inactiveAgeMs: null,
     vitals: { heartBeat: 6, breath: 5, overall: -35, fatigue: 45, drowsiness: 25, stress: 35 },
     heatStressAtLeast: 5,
     scores: { bodyStatus: -30, mindStatus: -30, environmentRisk: 55, mindMargin: -20, comfortScore: -25, discomfortScore: 30 },
@@ -92,56 +96,56 @@ export const DEMO_MEMBERS: DemoMemberSeed[] = [
     },
   },
   {
-    id: "m02", no: "02", name: "鈴木 一郎", lat: 35.6499, lng: 140.0371, areaId: "a2", lastKnownAreaId: "a2", frozenLocationAgeMs: null,
+    id: "m02", no: "02", name: "鈴木 一郎", lat: 35.6499, lng: 140.0371, areaId: "a2", lastKnownAreaId: "a2", inactiveAgeMs: null,
     vitals: { heartBeat: 12, overall: -15, fatigue: 30, stress: 40 },
     heatStressAtLeast: 4,
     scores: { bodyStatus: -15, mindStatus: -15, environmentRisk: 25 },
     mock: { vitals: { heartBeat: 88, fatigue: 64, stress: 61, overall: 65 }, scores: { bodyStatus: 63, mindStatus: 60, environmentRisk: 40 } },
   },
   {
-    id: "m03", no: "03", name: "TANAKA", lat: 35.6466, lng: 140.0378, areaId: "a3", lastKnownAreaId: "a3", frozenLocationAgeMs: null,
+    id: "m03", no: "03", name: "TANAKA", lat: 35.6466, lng: 140.0378, areaId: "a3", lastKnownAreaId: "a3", inactiveAgeMs: null,
     real: true,
   },
   {
-    id: "m04", no: "04", name: "佐藤 次郎", lat: 35.6487, lng: 140.0332, areaId: "a1", lastKnownAreaId: "a1", frozenLocationAgeMs: null,
+    id: "m04", no: "04", name: "佐藤 次郎", lat: 35.6487, lng: 140.0332, areaId: "a1", lastKnownAreaId: "a1", inactiveAgeMs: null,
     vitals: { heartBeat: 16, breath: 2, overall: -15, fatigue: 35 },
     heatStressAtLeast: 4,
     scores: { bodyStatus: -20, environmentRisk: 40 },
     mock: { vitals: { heartBeat: 92, breath: 19, fatigue: 66, overall: 65 }, scores: { bodyStatus: 60, environmentRisk: 55 } },
   },
   {
-    id: "m05", no: "05", name: "伊藤 花子", lat: 35.6457, lng: 140.0346, areaId: "a4", lastKnownAreaId: "a4", frozenLocationAgeMs: null,
+    id: "m05", no: "05", name: "伊藤 花子", lat: 35.6457, lng: 140.0346, areaId: "a4", lastKnownAreaId: "a4", inactiveAgeMs: null,
     vitals: { heartBeat: -6, breath: -3, overall: 8, stress: -8 },
     scores: { environmentRisk: -5, comfortScore: 5 },
     mock: { vitals: { heartBeat: 68, breath: 14, overall: 85 }, scores: { environmentRisk: 15 } },
   },
   {
-    id: "m06", no: "06", name: "高橋 三郎", lat: 35.6504, lng: 140.0388, areaId: "a2", lastKnownAreaId: "a2", frozenLocationAgeMs: null,
+    id: "m06", no: "06", name: "高橋 三郎", lat: 35.6504, lng: 140.0388, areaId: "a2", lastKnownAreaId: "a2", inactiveAgeMs: null,
     vitals: { heartBeat: 3, overall: 3 },
     scores: { bodyStatus: 4 },
     mock: { vitals: { overall: 80 } },
   },
   {
-    id: "m07", no: "07", name: "中村 直樹", lat: 35.6459, lng: 140.0362, areaId: "a3", lastKnownAreaId: "a3", frozenLocationAgeMs: null,
+    id: "m07", no: "07", name: "中村 直樹", lat: 35.6459, lng: 140.0362, areaId: "a3", lastKnownAreaId: "a3", inactiveAgeMs: null,
     vitals: { heartBeat: -2, breath: 1, overall: 1 },
     scores: { mindStatus: 3 },
     mock: { vitals: { overall: 78 } },
   },
   {
-    id: "m08", no: "08", name: "渡辺 直人", lat: 35.6471, lng: 140.0394, areaId: null, lastKnownAreaId: "a5", frozenLocationAgeMs: 5 * 60_000,
+    id: "m08", no: "08", name: "渡辺 直人", lat: 35.6471, lng: 140.0394, areaId: null, lastKnownAreaId: "a5", inactiveAgeMs: 5 * 60_000,
     vitals: { heartBeat: 14, overall: -18 },
     heatStressAtLeast: 4,
     scores: { environmentRisk: 55 },
     mock: { vitals: { heartBeat: 90, overall: 62 }, scores: { environmentRisk: 50 } },
   },
   {
-    id: "m09", no: "09", name: "井上 翔", lat: 35.6463, lng: 140.0371, areaId: "a3", lastKnownAreaId: "a3", frozenLocationAgeMs: null,
+    id: "m09", no: "09", name: "井上 翔", lat: 35.6463, lng: 140.0371, areaId: "a3", lastKnownAreaId: "a3", inactiveAgeMs: null,
     vitals: { heartBeat: 4, overall: 4 },
     scores: { comfortScore: -4 },
     mock: { vitals: { overall: 80 } },
   },
   {
-    id: "m10", no: "10", name: "山田 太郎", lat: 35.6491, lng: 140.0315, areaId: "a1", lastKnownAreaId: "a1", frozenLocationAgeMs: null,
+    id: "m10", no: "10", name: "山田 太郎", lat: 35.6491, lng: 140.0315, areaId: "a1", lastKnownAreaId: "a1", inactiveAgeMs: null,
     vitals: { heartBeat: 2, breath: -1, overall: 8 },
     scores: { environmentRisk: 10 },
     mock: { vitals: { heartBeat: 76, overall: 85 }, scores: { environmentRisk: 45 } },

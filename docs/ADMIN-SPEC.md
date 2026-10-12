@@ -167,7 +167,7 @@ Dữ liệu mẫu:
 |---|---|---|---|
 | 屋外作業場 | Khu làm việc ngoài trời | エリア 1 | 佐藤 元気 (ưu tiên), 山田 太郎, 佐藤 次郎 (cần chú ý) |
 | 製造エリア | Khu sản xuất | エリア 2 | 鈴木 一郎 (cần chú ý), 高橋 三郎 |
-| 物流エリア | Khu logistics | エリア 3 | 田中 健二, 井上 翔, 中村 直樹 |
+| 物流エリア | Khu logistics | エリア 3 | TANAKA, 井上 翔, 中村 直樹 |
 | 管理棟 | Tòa nhà quản lý | エリア 4 | 伊藤 花子 |
 | 屋外通路 | Lối đi ngoài trời | エリア 5 | 「現在の検出なし」 *(không có ai)* |
 | 位置の確認待ち | Chờ xác nhận vị trí | — | 渡辺 直人 (cần chú ý, lần cuối ở khu vực 5) |
@@ -207,7 +207,7 @@ Dữ liệu mẫu (đúng thứ tự trong mockup):
 | 02 | 鈴木 一郎 | 製造エリア・エリア 2 *(sản xuất, KV2)* | 要注意 | 65 | 立位 |
 | 04 | 佐藤 次郎 | 屋外作業場・エリア 1 | 要注意 | 65 | 立位 |
 | 08 | 渡辺 直人 | 現在地不明・最終確認 エリア 5 *(không rõ vị trí, lần cuối KV5)* | 要注意 | 62 | 立位 |
-| 03 | 田中 健二 | 物流エリア・エリア 3 *(logistics, KV3)* | 安定 | 76 | 立位 |
+| 03 | TANAKA | 物流エリア・エリア 3 *(logistics, KV3)* | 安定 | 76 | 立位 |
 | 05 | 伊藤 花子 | 管理棟・エリア 4 *(tòa quản lý, KV4)* | 安定 | 85 | 座位 |
 | 06 | 高橋 三郎 | 製造エリア・エリア 2 | 安定 | 80 | 立位 |
 | 07 | 中村 直樹 | 物流エリア・エリア 3 | 安定 | 78 | 立位 |
@@ -542,7 +542,7 @@ Thay cho §8.3: dữ liệu cảm biến đã lấy từ Firestore; điểm thay
 |---|---|
 | Đăng nhập (F12) | Firebase Authentication Email/Password. UID phải nằm trong `channelAccess/5005.readerUids`; thiếu quyền → 「閲覧権限なし」 *(không có quyền xem)* |
 | Nguồn dữ liệu | Chỉ nghe `liveChannels/5005`. Collection `members` chưa tồn tại trên Firestore (kiểm tra Console 2026-10-12) |
-| 10 người trên màn hình | 田中 健二 (03, 物流エリア *(khu kho vận)*) = dữ liệu kênh thật, giá trị "chưa đo được" hiện `—`. 9 người còn lại giữ tên/khu vực mock, gắn nhãn 「デモ」 *(demo)*: giá trị kênh hợp lệ → cộng độ lệch; giá trị kênh "chưa đo được" (0 / 255 / null) → dùng số mock của người đó theo mockup |
+| 10 người trên màn hình | TANAKA (03, 物流エリア *(khu kho vận)*) = dữ liệu kênh thật, giá trị "chưa đo được" hiện `—`. 9 người còn lại giữ tên/khu vực mock, gắn nhãn 「デモ」 *(demo)*: giá trị kênh hợp lệ → cộng độ lệch; giá trị kênh "chưa đo được" (0 / 255 / null) → dùng số mock của người đó theo mockup |
 | Kịch bản phân loại | Người 01 → 優先確認 *(ưu tiên)*, 02/04/08 → 要確認 *(cần xác nhận)* nhờ rủi ro nhiệt tối thiểu và độ lệch; các người khác theo dữ liệu thật |
 | Vị trí | GPS UDP nếu đủ (số hữu hạn, N/S + E/W, trong miền, khác 0,0 — giả định độ thập phân); không thì object `location` cùng hàng `meta` (`source`, `latitude`, `longitude`, `sampledAtEpochMs`) — theo ghi chú mobile dev, ngoài spec Firestore. Người demo rải quanh vị trí thật theo bố cục mockup; bản đồ canh vừa đủ các pin |
 | Bán kính sai số, pin | Không có trong dữ liệu → bỏ 「精度半径」, vòng nét đứt bán kính cố định 30 m; bỏ % pin |

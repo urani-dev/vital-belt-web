@@ -23,6 +23,7 @@ Cấu hình Firebase: copy `.env.example` → `.env.local` và điền giá tr�
 - Web nghe realtime một document `liveChannels/5005` (`src/data/liveSource.ts`), chỉ đọc.
 - 10 người theo design (`src/data/mockData.ts`): TANAKA nhận nguyên dữ liệu kênh thật; 9 người còn lại gắn nhãn 「デモ」 (`src/data/demoRoster.ts`): giá trị kênh hợp lệ thì cộng độ lệch, giá trị "chưa đo được" (mạch/thở = 0, điểm = 255, displayScores = null) thì dùng số mock theo mockup. TANAKA vẫn hiện `—` cho giá trị chưa đo được.
 - Vị trí: GPS trong packet UDP nếu hợp lệ, không thì lấy object `location` cùng hàng `meta`.
+- 渡辺 直人 (08) giả lập người đã ngừng gửi dữ liệu: lần nhận cuối = 5 phút trước lúc mở trang, số liệu / vị trí đóng băng, không có sóng; pin xám nét đứt 「N 分前」 và phân loại theo mất tín hiệu (quá 300 giây → 優先確認).
 - Khu vực, tên công việc, biểu đồ 24 giờ / 日次 / 週次 vẫn là dữ liệu giả (chưa có lịch sử, chưa có collection `members`).
 - Quá 5 giây không có `sequence` mới → 「更新停止」 (ngừng cập nhật).
 - `status` = 1 (không đeo đai) → nhãn 「未装着」 (chưa đeo) và xếp vào 要確認 (cần kiểm tra) sau thời gian duy trì; `status` = 2 → nhãn 「体動中」 (đang cử động), không đổi nhóm. Label JP là đề xuất, cần khách hàng duyệt.

@@ -11,18 +11,21 @@ const MAP_ZOOM = 16;
 const OSM_TILES = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 const OSM_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 const SELECTED_Z_OFFSET = 1000;
-/** Dữ liệu không có bán kính sai số GPS → vòng nét đứt "vị trí cũ" dùng bán kính cố định. */
-const STALE_RING_RADIUS_M = 30;
 const FIT_PADDING_PX: L.PointTuple = [36, 36];
 
+/**
+ * Pin theo design: vị trí mới → nền màu theo mức; vị trí cũ / không rõ → pin xám viền nét đứt
+ * (「破線：最終位置」) kèm nhãn thời gian 「N 分前」 bên dưới, không tô màu theo mức.
+ */
 function pinIcon(row: MemberRow, selected: boolean, ageLabel: string | null): L.DivIcon {
-  const color = CATEGORY_HEX[row.category];
+  const classes = ["vb-pin", ageLabel ? "vb-pin--inactive" : "", selected ? "vb-pin--selected" : ""].filter(Boolean).join(" ");
+  const style = ageLabel ? "" : ` style="background:${CATEGORY_HEX[row.category]}"`;
   const age = ageLabel ? `<span class="vb-pin-age">${ageLabel}</span>` : "";
   return L.divIcon({
     className: "",
     iconSize: [26, 26],
     iconAnchor: [13, 13],
-    html: `<div style="position:relative"><div class="vb-pin${selected ? " vb-pin--selected" : ""}" style="background:${color}">${Number(row.member.no)}</div>${age}</div>`,
+    html: `<div style="position:relative"><div class="${classes}"${style}>${Number(row.member.no)}</div>${age}</div>`,
   });
 }
 
@@ -104,15 +107,6 @@ function LeafletMap({ rows, fallbackCenter, anchor, selectedId, onSelect, expand
       if (location.lat === null || location.lng === null) continue;
       const position: L.LatLngTuple = [location.lat, location.lng];
       const isSelected = row.member.id === selectedId;
-      if (row.locationState !== "fresh") {
-        L.circle(position, {
-          radius: STALE_RING_RADIUS_M,
-          color: CATEGORY_HEX[row.category],
-          dashArray: "4 4",
-          weight: 1.5,
-          fillOpacity: 0.05,
-        }).addTo(layer);
-      }
       const ageLabel = row.locationState === "fresh" ? null : relativeTime(location.updatedAt, now);
       L.marker(position, {
         icon: pinIcon(row, isSelected, ageLabel),

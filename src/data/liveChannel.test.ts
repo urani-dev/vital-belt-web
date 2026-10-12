@@ -12,6 +12,8 @@ import {
   type LiveChannel,
 } from "./liveChannel";
 import { RELOCATE_DISTANCE_M, createDemoRoster, distanceM } from "./demoRoster";
+import { classify } from "../domain/classify";
+import { DEFAULT_THRESHOLDS } from "../domain/thresholds";
 import type { ChannelFeed } from "./liveSource";
 
 const PUBLISHED_AT = 1_791_781_291_752;
@@ -176,13 +178,31 @@ describe("demo roster", () => {
     expect(m05.vitals.status).toBe(0);
   });
 
-  it("frozen member keeps its first position and age", () => {
+  it("inactive member (m08): data stops — vitals, scores, position and last-seen time stay frozen", () => {
     const build = createDemoRoster();
     const first = build(feed(parsed()), PUBLISHED_AT).members.find((m) => m.id === "m08")!;
-    const moved = parsed({ location: { source: "device", latitude: 37.79, longitude: -122.41, sampledAtEpochMs: PUBLISHED_AT } });
-    const later = build(feed(moved), PUBLISHED_AT + 60_000).members.find((m) => m.id === "m08")!;
+    const changed = parsed({ location: { source: "device", latitude: 37.79, longitude: -122.41, sampledAtEpochMs: PUBLISHED_AT } });
+    changed.vitals.stress = 60;
+    changed.vitals.heartBeat = 95;
+    changed.scores.environmentRisk = 40;
+    const later = build(feed(changed), PUBLISHED_AT + 60_000).members.find((m) => m.id === "m08")!;
+    expect(later.vitals).toEqual(first.vitals);
+    expect(later.scores).toEqual(first.scores);
     expect(later.location).toEqual(first.location);
-    expect(first.location.updatedAt).toBe(PUBLISHED_AT - 5 * 60_000);
+    // Lần nhận cuối cố định 5 phút trước lúc mở trang → 1 phút sau là 6 phút trước.
+    expect(later.vitalsUpdatedAt).toBe(PUBLISHED_AT - 5 * 60_000);
+    expect(later.location.updatedAt).toBe(PUBLISHED_AT - 5 * 60_000);
+    expect(later.waves).toEqual({ heart: [], breath: [] }); // không có sóng mới
+  });
+
+  it("inactive member is classified by signal loss (> 300 s → 優先確認), active demo members are not", () => {
+    const { members } = createDemoRoster()(feed(parsed()), PUBLISHED_AT);
+    const m08 = members.find((m) => m.id === "m08")!;
+    const result = classify(m08, DEFAULT_THRESHOLDS, PUBLISHED_AT + 1_000);
+    expect(result.category).toBe("priority");
+    expect(result.reasons[0]).toEqual({ key: "signalLost", level: "priority", side: "high" });
+    const m10 = members.find((m) => m.id === "m10")!;
+    expect(classify(m10, DEFAULT_THRESHOLDS, PUBLISHED_AT + 1_000).reasons.map((r) => r.key)).not.toContain("signalLost");
   });
 
   it("frozen member follows when the real member relocates beyond RELOCATE_DISTANCE_M", () => {
@@ -197,11 +217,11 @@ describe("demo roster", () => {
     const gap = distanceM({ lat: watanabe(chiba).lat!, lng: watanabe(chiba).lng! }, { lat: tanaka(chiba).lat!, lng: tanaka(chiba).lng! });
     expect(watanabe(chiba).lat).not.toBe(watanabe(sf).lat);
     expect(gap).toBeLessThan(1_000); // vẫn giữ bố cục mockup quanh người thật
-    expect(watanabe(chiba).updatedAt).toBe(PUBLISHED_AT + 60_000 - 5 * 60_000); // tuổi vị trí tính lại
+    expect(watanabe(chiba).updatedAt).toBe(PUBLISHED_AT - 5 * 60_000); // đổi chỗ trên bản đồ, mốc nhận cuối giữ nguyên
 
     // Đi lại trong cùng hiện trường (< 2 km): vẫn đứng yên.
     const nearby = at(35.65, 140.04, PUBLISHED_AT + 120_000);
-    expect(watanabe(nearby)).toEqual(watanabe(chiba));
+    expect({ lat: watanabe(nearby).lat, lng: watanabe(nearby).lng }).toEqual({ lat: watanabe(chiba).lat, lng: watanabe(chiba).lng });
   });
 
   it("distanceM: 1° latitude ≈ 111 km; RELOCATE_DISTANCE_M is 2 km", () => {

@@ -61,15 +61,23 @@ body {
   outline: 3px solid var(--color-priority);
   outline-offset: 2px;
 }
+/* Vị trí cũ (design: pin 8 「5 分前」): nền trắng, viền xám nét đứt, số xám. */
+.vb-pin--inactive {
+  background: #fff;
+  color: #6f6c67;
+  border: 2px dashed #8a8782;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
+}
 .vb-pin-age {
   position: absolute;
-  top: 28px;
+  top: 30px;
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--color-ink);
-  background: rgb(255 255 255 / 0.9);
-  padding: 0 4px;
+  background: #fff;
+  padding: 1px 6px;
   border-radius: 4px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
 }

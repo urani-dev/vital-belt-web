@@ -1,6 +1,6 @@
-import type { DisplayScores, Member, MemberLocation, Operation, PacketVitals, Waveforms } from "../domain/types";
+import type { DisplayScores, Member, Operation, PacketVitals, Waveforms } from "../domain/types";
 import { HEAT_STRESS_MAX, HEAT_STRESS_MIN, STATUS_NO_PERSON, UNKNOWN_SCORE } from "../domain/classify";
-import { resolveLocation, type ResolvedLocation } from "./liveChannel";
+import { EMPTY_WAVES, resolveLocation, type LiveChannel, type ResolvedLocation } from "./liveChannel";
 import type { ChannelFeed } from "./liveSource";
 import { DEMO_MEMBERS, MOCK_SCORES, MOCK_VITALS, OPERATION, type DemoMemberSeed, type ShiftableVital } from "./mockData";
 
@@ -86,41 +86,32 @@ export interface DemoView {
 
 /**
  * Ghép 10 người của mockup với dữ liệu kênh thật (phase 1).
- * Có trạng thái: người có vị trí đứng yên (渡辺 直人) giữ tọa độ lần đầu thấy vị trí thật.
+ * Có trạng thái: người đã ngừng gửi dữ liệu (渡辺 直人) giữ nguyên số liệu và vị trí từ lần dựng đầu.
  */
 export function createDemoRoster(seeds: DemoMemberSeed[] = DEMO_MEMBERS) {
   const anchor = seeds.find((s) => s.real);
   if (!anchor) throw new Error("DEMO_MEMBERS cần đúng một người real");
-  /** Vị trí đứng yên + vị trí thật lúc đóng băng (để biết người thật đã đổi hiện trường chưa). */
-  const frozen = new Map<string, { still: ResolvedLocation; realAt: ResolvedLocation }>();
+  /**
+   * Người đã ngừng gửi dữ liệu: chụp một lần ở lần dựng đầu rồi giữ nguyên (không sinh số liệu mới).
+   * `realAt` = vị trí thật lúc chụp, để biết người thật đã đổi hiện trường chưa.
+   */
+  const inactive = new Map<
+    string,
+    { vitals: PacketVitals; scores: DisplayScores; lastSeenAt: number; still: ResolvedLocation | null; realAt: ResolvedLocation | null }
+  >();
 
-  const placeOf = (seed: DemoMemberSeed, real: ResolvedLocation | null, now: number): MemberLocation => {
-    const area = { areaId: seed.areaId, lastKnownAreaId: seed.lastKnownAreaId };
-    if (!real) return { lat: null, lng: null, source: null, updatedAt: now, ...area };
-    // Giữ bố cục tương đối của mockup quanh vị trí thật.
-    const moved: ResolvedLocation = { ...real, lat: real.lat + (seed.lat - anchor.lat), lng: real.lng + (seed.lng - anchor.lng) };
-    if (seed.frozenLocationAgeMs !== null) {
-      let entry = frozen.get(seed.id);
-      if (!entry || distanceM(entry.realAt, real) >= RELOCATE_DISTANCE_M) {
-        entry = { still: { ...moved, updatedAt: now - seed.frozenLocationAgeMs }, realAt: real };
-        frozen.set(seed.id, entry);
-      }
-      const { still } = entry;
-      return { lat: still.lat, lng: still.lng, source: still.source, updatedAt: still.updatedAt, ...area };
-    }
-    return { lat: moved.lat, lng: moved.lng, source: moved.source, updatedAt: moved.updatedAt, ...area };
-  };
+  const area = (seed: DemoMemberSeed) => ({ areaId: seed.areaId, lastKnownAreaId: seed.lastKnownAreaId });
 
-  return function build(feed: ChannelFeed, now: number): DemoView {
-    const { channel } = feed;
-    if (!channel) return { operation: OPERATION, members: [] };
-    const receivedAt = feed.receivedAt ?? now;
-    const real = resolveLocation(channel, receivedAt);
-    const operation: Operation = {
-      ...OPERATION,
-      weather: { ...OPERATION.weather, temperature: channel.vitals.temperature, humidity: channel.vitals.humidity },
-    };
-    const members = seeds.map((seed, index): Member => ({
+  /** Giữ bố cục tương đối của mockup quanh vị trí thật. */
+  const placed = (seed: DemoMemberSeed, real: ResolvedLocation): ResolvedLocation => ({
+    ...real,
+    lat: real.lat + (seed.lat - anchor.lat),
+    lng: real.lng + (seed.lng - anchor.lng),
+  });
+
+  const activeMember = (seed: DemoMemberSeed, index: number, feed: ChannelFeed, channel: LiveChannel, real: ResolvedLocation | null, now: number): Member => {
+    const where = real ? placed(seed, real) : null;
+    return {
       id: seed.id,
       no: seed.no,
       name: seed.name,
@@ -128,9 +119,58 @@ export function createDemoRoster(seeds: DemoMemberSeed[] = DEMO_MEMBERS) {
       vitals: seed.real ? channel.vitals : demoVitals(channel.vitals, seed, index, now),
       scores: seed.real ? channel.scores : demoScores(channel.scores, seed),
       waves: seed.real ? feed.waves : delayWaves(feed.waves, (index + 1) * WAVE_SHIFT_SAMPLES),
-      location: placeOf(seed, real, now),
-      vitalsUpdatedAt: receivedAt,
-    }));
+      location: where
+        ? { lat: where.lat, lng: where.lng, source: where.source, updatedAt: where.updatedAt, ...area(seed) }
+        : { lat: null, lng: null, source: null, updatedAt: now, ...area(seed) },
+      vitalsUpdatedAt: feed.receivedAt ?? now,
+    };
+  };
+
+  const inactiveMember = (seed: DemoMemberSeed, ageMs: number, index: number, channel: LiveChannel, real: ResolvedLocation | null, now: number): Member => {
+    let entry = inactive.get(seed.id);
+    if (!entry) {
+      entry = {
+        vitals: demoVitals(channel.vitals, seed, index, now),
+        scores: demoScores(channel.scores, seed),
+        lastSeenAt: now - ageMs,
+        still: real ? placed(seed, real) : null,
+        realAt: real,
+      };
+      inactive.set(seed.id, entry);
+    } else if (real && (!entry.realAt || distanceM(entry.realAt, real) >= RELOCATE_DISTANCE_M)) {
+      // Người thật đổi hiện trường: chỉ dời vị trí cuối theo bố cục mới, số liệu và mốc nhận cuối giữ nguyên.
+      entry.still = placed(seed, real);
+      entry.realAt = real;
+    }
+    const { still } = entry;
+    return {
+      id: seed.id,
+      no: seed.no,
+      name: seed.name,
+      isDemo: true,
+      vitals: entry.vitals,
+      scores: entry.scores,
+      waves: EMPTY_WAVES,
+      location: still
+        ? { lat: still.lat, lng: still.lng, source: still.source, updatedAt: entry.lastSeenAt, ...area(seed) }
+        : { lat: null, lng: null, source: null, updatedAt: entry.lastSeenAt, ...area(seed) },
+      vitalsUpdatedAt: entry.lastSeenAt,
+    };
+  };
+
+  return function build(feed: ChannelFeed, now: number): DemoView {
+    const { channel } = feed;
+    if (!channel) return { operation: OPERATION, members: [] };
+    const real = resolveLocation(channel, feed.receivedAt ?? now);
+    const operation: Operation = {
+      ...OPERATION,
+      weather: { ...OPERATION.weather, temperature: channel.vitals.temperature, humidity: channel.vitals.humidity },
+    };
+    const members = seeds.map((seed, index): Member =>
+      seed.inactiveAgeMs !== null && !seed.real
+        ? inactiveMember(seed, seed.inactiveAgeMs, index, channel, real, now)
+        : activeMember(seed, index, feed, channel, real, now),
+    );
     return { operation, members };
   };
 }
