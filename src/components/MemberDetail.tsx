@@ -209,11 +209,12 @@ function PulseBreath({ row, now }: { row: MemberRow; now: number }) {
   );
 }
 
-type Drill = "bme" | "pulse" | null;
+/** Hai khối drill-down mở/đóng độc lập — mở được cả hai cùng lúc. */
+type Drill = "bme" | "pulse";
 
 /** F8 — (C) Chi tiết thành viên + drill-down F9, F10. */
 export function MemberDetail({ row, areas, now }: { row: MemberRow; areas: Area[]; now: number }) {
-  const [drill, setDrill] = useState<Drill>(null);
+  const [open, setOpen] = useState<Record<Drill, boolean>>({ bme: false, pulse: false });
   const { member } = row;
   const area = areas.find((a) => a.id === (member.location.areaId ?? member.location.lastKnownAreaId));
   const reason = row.reasons[0];
@@ -229,16 +230,16 @@ export function MemberDetail({ row, areas, now }: { row: MemberRow; areas: Area[
     // 24 giờ sinh lại theo phút là đủ, không cần mỗi giây.
     [member.id, member.vitals.overall, Math.floor(now / 60_000)],
   );
-  const toggle = (d: Exclude<Drill, null>) => setDrill((cur) => (cur === d ? null : d));
-  const drillButton = (d: Exclude<Drill, null>, open: string, close: string) => (
+  const toggle = (d: Drill) => setOpen((cur) => ({ ...cur, [d]: !cur[d] }));
+  const drillButton = (d: Drill, openLabel: string, closeLabel: string) => (
     <button
       type="button"
       onClick={() => toggle(d)}
-      aria-expanded={drill === d}
+      aria-expanded={open[d]}
       className="mt-3 flex items-center gap-1 text-xs font-bold hover:underline"
     >
-      <span className="text-muted">{drill === d ? "▾" : "▸"}</span>
-      {drill === d ? close : open}
+      <span className="text-muted">{open[d] ? "▾" : "▸"}</span>
+      {open[d] ? closeLabel : openLabel}
     </button>
   );
 
@@ -288,7 +289,7 @@ export function MemberDetail({ row, areas, now }: { row: MemberRow; areas: Area[
       </div>
 
       {drillButton("bme", "からだ・こころ・環境を見る", "からだ・こころ・環境を閉じる")}
-      {drill === "bme" && (
+      {open.bme && (
         <div className="mt-2 rounded-lg border border-line p-3">
           <BodyMindEnvironment row={row} />
         </div>
@@ -310,7 +311,7 @@ export function MemberDetail({ row, areas, now }: { row: MemberRow; areas: Area[
       </div>
 
       {drillButton("pulse", "脈拍・呼吸を見る", "脈拍・呼吸を閉じる")}
-      {drill === "pulse" && (
+      {open.pulse && (
         <div className="mt-2 rounded-lg border border-line p-3">
           <PulseBreath row={row} now={now} />
         </div>
