@@ -1,0 +1,88 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@theme {
+  --font-sans: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+
+  --color-page: #eeede9;
+  --color-panel: #ffffff;
+  --color-line: #e4e2dd;
+  --color-ink: #1f1f1f;
+  --color-muted: #8a8782;
+  --color-subtle: #f6f5f2;
+
+  --color-priority: #a61e2d;
+  --color-priority-soft: #fbeced;
+  --color-caution: #b9852a;
+  --color-caution-soft: #fbf3e3;
+  --color-normal: #4e8a5b;
+  --color-normal-soft: #e9f3ec;
+
+  --color-metric: #2f6db3;
+  --color-alert: #c0392b;
+  --color-body: #e0703a;
+  --color-mind: #4a7fc1;
+  --color-env: #b84a4a;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--color-page);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Bản đồ nền xám nhạt giống design (F3) */
+.leaflet-tile-pane {
+  filter: grayscale(1) brightness(1.04) contrast(0.92);
+}
+
+/* Pin số trên bản đồ (F3) */
+.vb-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 9999px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
+}
+.vb-pin--selected {
+  outline: 3px solid var(--color-priority);
+  outline-offset: 2px;
+}
+.vb-pin-age {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 10px;
+  color: var(--color-ink);
+  background: rgb(255 255 255 / 0.9);
+  padding: 0 4px;
+  border-radius: 4px;
+}
+
+@keyframes vb-splash {
+  0% { opacity: 0; }
+  25% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.vb-splash-text {
+  animation: vb-splash 2.6s ease-in-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .vb-splash-text { animation: none; }
+}
